@@ -17,7 +17,7 @@ const Landing = () => {
         {/* Navbar */}
         <header className="absolute top-0 w-full flex items-center justify-between px-8 py-4 bg-transparent">
           <Link href="#home" className="text-2xl font-bold tracking-wide">
-            Veritas AI 
+            VeritasAI 
           </Link>
           <nav className="hidden md:flex space-x-6 text-gray-300">
             <Link href="/" className="hover:text-white">
@@ -28,6 +28,9 @@ const Landing = () => {
             </Link>
             <Link href="#solution" className="hover:text-white">
               Solution
+            </Link>
+                 <Link href="/news" className="hover:text-white">
+              News
             </Link>
           </nav>
           <div className="flex items-center space-x-4">
