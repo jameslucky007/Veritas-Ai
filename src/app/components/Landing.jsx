@@ -17,7 +17,7 @@ const Landing = () => {
         {/* Navbar */}
         <header className="absolute top-0 w-full flex items-center justify-between px-8 py-4 bg-transparent">
           <Link href="#home" className="text-2xl font-bold tracking-wide">
-            True Fact
+            Veritas AI 
           </Link>
           <nav className="hidden md:flex space-x-6 text-gray-300">
             <Link href="/" className="hover:text-white">

@@ -14,8 +14,8 @@ const roboto = Roboto({
 });
 
 export const metadata = {
-  title: "True Fact",
-  description: "It Is a Fact checking software ",
+  title: "Veritas AI (",
+  description: "It Is a Fact checking AI software ",
     icons: { 
     icon: "/tab.svg",
   },
