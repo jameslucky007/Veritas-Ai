@@ -1,11 +1,11 @@
 import { Poppins, Roboto } from "next/font/google";
 import "./globals.css";
-import Sidebar from "./components/Sidebar";
+import ClientRoot from "./ClientRoot";
 
 const poppins = Poppins({
   variable: "--font-Poppins",
   subsets: ["latin"],
-  weight: ["400", "700"], 
+  weight: ["400", "700"],
 });
 
 const roboto = Roboto({
@@ -17,20 +17,14 @@ const roboto = Roboto({
 export const metadata = {
   title: "Veritas AI",
   description: "It Is a Fact checking AI software",
-  icons: { 
-    icon: "/tab.svg",
-  },
+  icons: { icon: "/tab.svg" },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${poppins.variable} ${roboto.variable} antialiased`}>
-        {/* Flex container */}
-        <div className="flex min-h-screen">
-          <Sidebar />
-          <main className="ml-[240px] flex-1  bg-gray-800  ">{children}</main>
-        </div>
+        <ClientRoot>{children}</ClientRoot>
       </body>
     </html>
   );
