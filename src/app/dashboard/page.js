@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Mic, Image, Video, File, X, Send, Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -9,23 +9,13 @@ export default function DashboardPage() {
   const [isSending, setIsSending] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
-  // 🔹 File select handler
+  // ✅ Handle file upload
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
     setUploadedFiles((prev) => [...prev, ...files]);
   };
 
-  // 🔹 Drag + drop support
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const files = Array.from(event.dataTransfer.files);
-    setUploadedFiles((prev) => [...prev, ...files]);
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
-
+  // ✅ Handle send
   const handleSend = () => {
     if (!searchInput.trim() && uploadedFiles.length === 0) return;
     setIsSending(true);
@@ -37,6 +27,30 @@ export default function DashboardPage() {
     }, 2000);
   };
 
+  // ✅ Voice recognition (Web Speech API)
+  const handleVoiceInput = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert("Voice recognition not supported in this browser");
+      return;
+    }
+
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchInput((prev) => prev + " " + transcript);
+    };
+
+    recognition.start();
+  };
+
   return (
     <div className="flex flex-col flex-1 min-h-screen bg-gray-800 text-white">
       {/* Welcome Banner */}
@@ -46,11 +60,11 @@ export default function DashboardPage() {
         </h1>
       </div>
 
-      {/* Search Bar */}
+      {/* Input Section */}
       <div className="relative p-6 flex items-center justify-center">
         <div className="relative flex items-center w-full max-w-2xl bg-gray-800 rounded-full shadow-lg border border-gray-700">
           
-          {/* Plus Button - left side */}
+          {/* Plus Button */}
           <div className="relative">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -63,42 +77,20 @@ export default function DashboardPage() {
             {isMenuOpen && (
               <div className="absolute bottom-14 left-0 p-4 bg-gray-800 rounded-2xl shadow-xl border border-gray-700">
                 <div className="flex flex-col gap-4">
-                  {/* Hidden input for images */}
                   <label className="flex items-center gap-3 hover:text-indigo-400 cursor-pointer">
                     <Image size={20} />
                     <span>Images</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
                   </label>
-
-                  {/* Hidden input for videos */}
                   <label className="flex items-center gap-3 hover:text-indigo-400 cursor-pointer">
                     <Video size={20} />
                     <span>Videos</span>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
+                    <input type="file" accept="video/*" multiple className="hidden" onChange={handleFileSelect} />
                   </label>
-
-                  {/* Hidden input for files */}
                   <label className="flex items-center gap-3 hover:text-indigo-400 cursor-pointer">
                     <File size={20} />
                     <span>Files</span>
-                    <input
-                      type="file"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileSelect}
-                    />
+                    <input type="file" multiple className="hidden" onChange={handleFileSelect} />
                   </label>
                 </div>
               </div>
@@ -114,13 +106,11 @@ export default function DashboardPage() {
             className="flex-grow py-3 px-6 bg-transparent outline-none text-white placeholder-gray-400"
           />
 
-          {/* Voice Button */}
+          {/* Voice Input */}
           <button
-            onClick={() => alert("Voice feature")}
+            onClick={handleVoiceInput}
             className={`p-3 transition-colors ${
-              isListening
-                ? "text-red-500 animate-bounce"
-                : "text-gray-300 hover:text-indigo-400"
+              isListening ? "text-red-500 animate-bounce" : "text-gray-300 hover:text-indigo-400"
             }`}
           >
             <Mic size={24} />
