@@ -14,7 +14,7 @@
   } from "lucide-react";
 
   const Sidebar = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed] = useState(false);
       return (
       <>
     
