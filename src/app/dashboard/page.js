@@ -9,13 +9,13 @@ export default function DashboardPage() {
   const [isSending, setIsSending] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
-  // ✅ Handle file upload
+  //  Handle file upload
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
     setUploadedFiles((prev) => [...prev, ...files]);
   };
 
-  // ✅ Handle send
+  //  Handle send
   const handleSend = () => {
     if (!searchInput.trim() && uploadedFiles.length === 0) return;
     setIsSending(true);
@@ -27,7 +27,7 @@ export default function DashboardPage() {
     }, 2000);
   };
 
-  // ✅ Voice recognition (Web Speech API)
+  // Voice recognition (Web Speech API)
   const handleVoiceInput = () => {
     if (!("webkitSpeechRecognition" in window)) {
       alert("Voice recognition not supported in this browser");
