@@ -56,7 +56,7 @@ export default function DashboardPage() {
       {/* Welcome Banner */}
       <div className="flex-grow flex items-center justify-center p-8 text-center">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
-          Welcome to Veritas AI
+          Welcome to VeritasAI
         </h1>
       </div>
 

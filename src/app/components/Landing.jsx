@@ -1,9 +1,10 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import {ShieldCheck, Globe, Database, Brain, Users, CheckCircle,  Search, FileCheck,  BookOpen,  Share2,  Zap,  BarChart3,} from "lucide-react";
+import {ShieldCheck, Globe, Database, Brain, Users, CheckCircle,} from "lucide-react";
 
 const Landing = () => {
+  
   return (
     <>
       {/* Hero Section with Animated Background */}
@@ -100,40 +101,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Solution Section */}
-      <section
-        id="solution"
-        className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center px-8 py-20"
-      >
-        <div className="max-w-5xl text-center">
-          <h3 className="text-3xl md:text-4xl font-bold mb-6">Our Solution</h3>
-          <p className="text-lg text-gray-400 mb-10">
-            We combine machine learning, crowdsourced verification, and trusted
-            databases to provide accurate results in seconds.
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Search, title: "Claim Analysis", desc: "Analyze claims automatically." },
-              { icon: FileCheck, title: "Verified Sources", desc: "Cross-check with news & journals." },
-              { icon: BookOpen, title: "Educational", desc: "Learn why content is true/false." },
-              { icon: Share2, title: "Easy Sharing", desc: "Share fact-checks instantly." },
-              { icon: Zap, title: "Lightning Fast", desc: "Results in seconds." },
-              { icon: BarChart3, title: "Analytics", desc: "Track misinformation trends." },
-            ].map((card, i) => (
-              <motion.div
-                key={i}
-                className="p-6 bg-gray-800 rounded-2xl shadow flex flex-col items-center"
-                whileHover={{ scale: 1.05 }}
-              >
-                <card.icon className="h-10 w-10 text-gray-300 mb-4" />
-                <h4 className="font-semibold text-xl mb-2">{card.title}</h4>
-                <p className="text-gray-400 text-sm">{card.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400">

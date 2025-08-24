@@ -26,7 +26,7 @@
           } bg-gray-800 dark:bg-gray-900 text-white p-6 h-screen fixed top-0 left-0 shadow-lg transition-all duration-300 flex flex-col`}
         >
           {/* Logo */}
-          <Link href="/dashboard"><h2 className="text-white text-3xl mb-10">Veritas AI </h2></Link>
+          <Link href="/dashboard"><h2 className="text-white text-3xl mb-10">VeritasAI </h2></Link>
           {/* Navigation */}
           <nav className="space-y-6 flex-1">
             <Link
