@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Mic, Image, Video, File, X, Send, Loader2 } from "lucide-react";
 
+
 export default function DashboardPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -52,6 +53,7 @@ export default function DashboardPage() {
   };
 
   return (
+    
     <div className="flex flex-col flex-1 min-h-screen bg-gray-800 text-white">
       {/* Welcome Banner */}
       <div className="flex-grow flex items-center justify-center p-8 text-center">

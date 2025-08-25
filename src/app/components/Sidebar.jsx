@@ -1,64 +1,66 @@
-  "use client";
-  import { useState, useEffect } from "react";
-  import Link from "next/link";
-  import {
-    Home,
-    LayoutDashboard,
-    Newspaper,
-    Bookmark,
-    Settings,
-    Share2,
-    Menu,
-    Sun,
-    Moon,
-  } from "lucide-react";
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { Home, Bookmark, Settings, Menu, LogOut } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/firebase"; // adjust path
 
-  const Sidebar = () => {
-    const [isCollapsed] = useState(false);
-      return (
-      <>
-    
+const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+  const menuItems = [
+    { name: "Home", icon: <Home size={20} />, href: "/dashboard" },
+    { name: "History", icon: <Bookmark size={20} />, href: "/history" },
+    { name: "Settings", icon: <Settings size={20} />, href: "/setting" },
+  ];
 
-        {/* Sidebar */}
-        <aside
-          className={`${
-            isCollapsed ? "w-20" : "w-60"
-          } bg-gray-800 dark:bg-gray-900 text-white p-6 h-screen fixed top-0 left-0 shadow-lg transition-all duration-300 flex flex-col`}
-        >
-          {/* Logo */}
-          <Link href="/dashboard"><h2 className="text-white text-3xl mb-10">VeritasAI </h2></Link>
-          {/* Navigation */}
-          <nav className="space-y-6 flex-1">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-3 hover:text-indigo-200 transition"
-            >
-              <Home size={20} />
-              {!isCollapsed && "Home"}
-            </Link>
-
-    
-
-            <Link
-              href="/history"
-              className="flex items-center gap-3 hover:text-indigo-300 transition"
-            >
-              <Bookmark size={20} />
-              {!isCollapsed && "History"}
-            </Link>
-
-            <Link
-              href="/Setting"
-              className="flex items-center gap-3 hover:text-indigo-300 transition"
-            >
-              <Settings size={20} />
-              {!isCollapsed && "Settings"}
-            </Link>
-
-          </nav>
-        </aside>
-      </>
-    );
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/login";
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
-  export default Sidebar;
+  return (
+    <aside
+      className={`${
+        isCollapsed ? "w-20" : "w-60"
+      } bg-gray-800 dark:bg-gray-900 text-white h-screen fixed top-0 left-0 shadow-lg transition-all duration-300 flex flex-col`}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 mt-4">
+        {!isCollapsed && <h2 className="text-2xl font-bold">VeritasAI</h2>}
+        <button className="ml-2 mt-1" onClick={() => setIsCollapsed(!isCollapsed)}>
+          <Menu size={22} />
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-6 px-4">
+        {menuItems.map((item, i) => (
+          <Link
+            key={i}
+            href={item.href}
+            className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-indigo-600 transition mt-10"
+          >
+            {item.icon}
+            {!isCollapsed && <span>{item.name}</span>}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Logout */}
+      <div className="p-4">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-red-600 transition"
+        >
+          <LogOut size={20} />
+          {!isCollapsed && <span>Logout</span>}
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+export default Sidebar;
