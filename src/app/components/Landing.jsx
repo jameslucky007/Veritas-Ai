@@ -1,10 +1,62 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
-import {ShieldCheck, Globe, Database, Brain, Users, CheckCircle,} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ShieldCheck, Globe, Database, Brain, Users, CheckCircle } from "lucide-react";
+import { auth } from "../firebase/firebase";
+import {  GoogleAuthProvider,  signInWithPopup,  onAuthStateChanged,  createUserWithEmailAndPassword,  signInWithEmailAndPassword,} from "firebase/auth";
 
 const Landing = () => {
-  
+  const router = useRouter();
+  const [showAuth, setShowAuth] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const [mode, setMode] = useState("signin"); // 'signin' | 'signup'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // If already signed in, go straight to dashboard
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) router.replace("/dashboard");
+    });
+    return () => unsub();
+  }, [router]);
+
+  const handleGoogle = async () => {
+    setErr("");
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.replace("/dashboard");
+    } catch (e) {
+      setErr(e?.message || "Authentication failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEmailPassword = async (e) => {
+    e.preventDefault();
+    setErr("");
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+      router.replace("/dashboard");
+    } catch (e) {
+      setErr(e?.message || "Authentication failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Hero Section with Animated Background */}
@@ -17,28 +69,23 @@ const Landing = () => {
       >
         {/* Navbar */}
         <header className="absolute top-0 w-full flex items-center justify-between px-8 py-4 bg-transparent">
-          <Link href="/" className="text-2xl font-bold tracking-wide">
-            VeritasAI 
-          </Link>
+          <Link href="/" className="text-2xl font-bold tracking-wide">VeritasAI</Link>
+
           <nav className="hidden md:flex space-x-6 text-gray-300">
-            <Link href="/" className="hover:text-white">
-              Home
-            </Link>
-            <Link href="#platform" className="hover:text-white">
-              Platform
-            </Link>
-            <Link href="#solution" className="hover:text-white">
-              Solution
-            </Link>
-                 <Link href="/news" className="hover:text-white">
-              News
-            </Link>
+            <Link href="/" className="hover:text-white">Home</Link>
+            <Link href="#platform" className="hover:text-white">Platform</Link>
+            <Link href="#solution" className="hover:text-white">Solution</Link>
+            <Link href="/news" className="hover:text-white">News</Link>
           </nav>
+
           <div className="flex items-center space-x-4">
-            <button className="text-gray-300 hover:text-white">Log in</button>
-            <Link href="/dashboard" className="rounded-2xl bg-white text-black px-5 py-2 hover:bg-gray-200 transition">
-              Get Started
-            </Link>
+           
+            <button
+              onClick={() => setShowAuth(true)}
+              className="rounded-2xl bg-white text-black px-5 py-2 hover:bg-gray-200 transition"
+            >
+              Login / Signup
+            </button>
           </div>
         </header>
 
@@ -52,18 +99,78 @@ const Landing = () => {
             Verify information instantly with AI-powered insights and protect
             your decisions from misinformation.
           </p>
-          <div className="mt-8 mb-10">
-            <Link
-              href="#platform"
-              className="bg-gradient-to-r from-gray-800 to-gray-600 hover:from-gray-700 hover:to-gray-500 text-white px-6 py-3 rounded-full shadow-lg text-lg transition"
-            >
-              Register Here
-            </Link>
-          </div>
+          <div className="mt-8 mb-10" />
           <p className="mt-6 text-gray-500 text-sm">
             Backed by world-class researchers & innovators
           </p>
         </div>
+
+        {/* Auth Modal / Panel */}
+        {showAuth && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4">
+            <div className="w-full max-w-md bg-gray-900 border border-gray-700 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold">
+                  {mode === "signin" ? "Sign in" : "Create your account"}
+                </h3>
+                <button onClick={() => setShowAuth(false)} className="px-2">✕</button>
+              </div>
+
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setMode("signin")}
+                  className={`flex-1 py-2 rounded-xl border ${mode === "signin" ? "bg-white text-black" : "border-gray-700"}`}
+                >
+                  Sign in
+                </button>
+                <button
+                  onClick={() => setMode("signup")}
+                  className={`flex-1 py-2 rounded-xl border ${mode === "signup" ? "bg-white text-black" : "border-gray-700"}`}
+                >
+                  Sign up
+                </button>
+              </div>
+
+              <button
+                onClick={handleGoogle}
+                disabled={loading}
+                className="w-full mb-3 px-4 py-2 rounded-xl border border-gray-700"
+              >
+                {loading ? "Please wait…" : "Continue with Google"}
+              </button>
+
+              <div className="text-center text-xs text-gray-500 my-2">or use email</div>
+
+              <form onSubmit={handleEmailPassword} className="space-y-3">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  className="w-full px-4 py-2 rounded-xl bg-gray-800 border border-gray-700 outline-none"
+                />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full px-4 py-2 rounded-xl bg-gray-800 border border-gray-700 outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-4 py-2 rounded-xl bg-white text-black hover:bg-gray-200 transition"
+                >
+                  {loading ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
+                </button>
+              </form>
+
+              {err && <p className="text-red-400 text-sm mt-3">{err}</p>}
+            </div>
+          </div>
+        )}
       </motion.section>
 
       {/* Platform Section */}
@@ -101,23 +208,14 @@ const Landing = () => {
         </div>
       </section>
 
-      
-
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400">
         <div className="border-t border-gray-700">
           <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
-            <p>© {new Date().getFullYear()} True Fact. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} VeritasAI. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link href="#" className="hover:text-white">
-                Privacy Policy
-              </Link>
-              <Link href="#" className="hover:text-white">
-                Terms of Service
-              </Link>
-              <Link href="#" className="hover:text-white">
-                Tranding Feed
-              </Link>
+              <Link href="#" className="hover:text-white">Privacy Policy</Link>
+              <Link href="#" className="hover:text-white">Terms of Service</Link>
             </div>
           </div>
         </div>

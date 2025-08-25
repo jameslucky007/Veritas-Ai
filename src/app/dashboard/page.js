@@ -1,14 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Mic, Image, Video, File, X, Send, Loader2 } from "lucide-react";
 
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  
 
   //  Handle file upload
   const handleFileSelect = (event) => {
@@ -21,7 +25,7 @@ export default function DashboardPage() {
     if (!searchInput.trim() && uploadedFiles.length === 0) return;
     setIsSending(true);
     setTimeout(() => {
-      alert(`Message sent: ${searchInput}\nFiles: ${uploadedFiles.map(f => f.name).join(", ")}`);
+      alert(`Message sent: ${searchInput}\nFiles: ${uploadedFiles.map((f) => f.name).join(", ")}`);
       setSearchInput("");
       setUploadedFiles([]);
       setIsSending(false);
@@ -52,9 +56,11 @@ export default function DashboardPage() {
     recognition.start();
   };
 
+
   return (
-    
     <div className="flex flex-col flex-1 min-h-screen bg-gray-800 text-white">
+     
+
       {/* Welcome Banner */}
       <div className="flex-grow flex items-center justify-center p-8 text-center">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
@@ -65,7 +71,6 @@ export default function DashboardPage() {
       {/* Input Section */}
       <div className="relative p-6 flex items-center justify-center">
         <div className="relative flex items-center w-full max-w-2xl bg-gray-800 rounded-full shadow-lg border border-gray-700">
-          
           {/* Plus Button */}
           <div className="relative">
             <button
@@ -111,9 +116,7 @@ export default function DashboardPage() {
           {/* Voice Input */}
           <button
             onClick={handleVoiceInput}
-            className={`p-3 transition-colors ${
-              isListening ? "text-red-500 animate-bounce" : "text-gray-300 hover:text-indigo-400"
-            }`}
+            className={`p-3 transition-colors ${isListening ? "text-red-500 animate-bounce" : "text-gray-300 hover:text-indigo-400"}`}
           >
             <Mic size={24} />
           </button>
@@ -124,11 +127,7 @@ export default function DashboardPage() {
             disabled={isSending}
             className="p-3 text-gray-300 hover:text-indigo-400 transition-colors"
           >
-            {isSending ? (
-              <Loader2 size={24} className="animate-spin text-indigo-400" />
-            ) : (
-              <Send size={24} />
-            )}
+            {isSending ? <Loader2 size={24} className="animate-spin text-indigo-400" /> : <Send size={24} />}
           </button>
         </div>
       </div>
