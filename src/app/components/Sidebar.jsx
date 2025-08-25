@@ -26,7 +26,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       className={`
         ${isCollapsed ? "w-16" : "w-64"}
         bg-gray-900 text-white h-screen fixed top-0 left-0
-        shadow-lg transition-all duration-300 flex flex-col z-50
+        shadow-lg transition-all duration-300 flex flex-col z-50 
       `}
     >
       {/* Header */}
@@ -43,7 +43,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           <Link
             key={i}
             href={item.href}
-            className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-indigo-600 transition"
+            className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-indigo-600 transition mt-5"
           >
             {item.icon}
             {!isCollapsed && <span>{item.name}</span>}
