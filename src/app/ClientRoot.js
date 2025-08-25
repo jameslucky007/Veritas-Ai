@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 
 export default function ClientRoot({ children }) {
@@ -9,17 +9,31 @@ export default function ClientRoot({ children }) {
   const isLanding = pathname === "/";
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // Detect screen size on load + resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsCollapsed(true); // mobile → collapsed
+      } else {
+        setIsCollapsed(false); // desktop → expanded
+      }
+    };
+
+    handleResize(); // run once on mount
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="flex min-h-screen">
       {!isLanding && (
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       )}
-
-      {/* Dashboard adjusts margin depending on sidebar state */}
       <main
-        className={`${
-          !isLanding ? (isCollapsed ? "ml-20" : "ml-60") : ""
-        } flex-1 bg-gray-800 transition-all duration-300`}
+        className={`flex-1 bg-gray-800 transition-all duration-300 ${
+          !isLanding ? (isCollapsed ? "ml-16" : "ml-64") : ""
+        }`}
       >
         {children}
       </main>
