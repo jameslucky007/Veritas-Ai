@@ -86,7 +86,7 @@ export default function DashboardPage() {
                 <div className="flex flex-col gap-4">
                   <label className="flex items-center gap-3 hover:text-indigo-400 cursor-pointer">
                     <Image size={20} />
-                    <span>Images</span>
+                    <span>Images A</span>
                     <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
                   </label>
                   <label className="flex items-center gap-3 hover:text-indigo-400 cursor-pointer">
