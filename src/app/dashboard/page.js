@@ -18,80 +18,73 @@ export default function DashboardPage() {
   const [isListening, setIsListening] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [aiResponse, setAiResponse] = useState("");
-  const [accuracy, setAccuracy] = useState(null); // percentage score
 
+  const [currentChat, setCurrentChat] = useState(null); // ✅ only latest Q&A
   const recognitionRef = useRef(null);
 
-  // File select handler
+ const saveToHistory = (chat) => {
+  const prev = JSON.parse(localStorage.getItem("history") || "[]");
+  localStorage.setItem("history", JSON.stringify([...prev, chat]));
+};
+
+  // File select
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files || []);
     if (files.length) setUploadedFiles((prev) => [...prev, ...files]);
   };
 
-  // Drag & drop handlers
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files || []);
-    if (files.length) setUploadedFiles((prev) => [...prev, ...files]);
-  };
-  const handleDragOver = (e) => e.preventDefault();
-
-  // Handle keyboard enter
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  // Send prompt to local Ollama via /api/ollama
+  // Send prompt
   const handleSend = async () => {
     if (!searchInput.trim() && uploadedFiles.length === 0) return;
+
+    const question = searchInput;
+    setSearchInput("");
     setIsSending(true);
-    setAiResponse("");
-    setAccuracy(null);
 
-    const filesSummary =
-      uploadedFiles.length > 0
-        ? `\n\nFiles: ${uploadedFiles.map((f) => f.name).join(", ")}`
-        : "";
-
-    const currentInput = searchInput; // Store current input
-    setSearchInput(""); // Clear input immediately after sending
+    // Show "Thinking..."
+    setCurrentChat({ question, answer: "Thinking..." });
 
     try {
       const res = await fetch("/api/ollama", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: currentInput + filesSummary,
-          model: "llama3",
+          model: uploadedFiles.length > 0 ? "llava" : "llama3",
+          prompt: question,
           max_tokens: 300,
+          system:
+            "You are VeritasAI. Always reply in under 50 words. Always provide a reference/source when possible.",
         }),
       });
 
       if (!res.ok) throw new Error("API returned " + res.status);
-
       const data = await res.json();
-      setAiResponse(data.output || "No response from model");
 
-      // mock correctness score (replace later with real check)
-      setAccuracy(Math.floor(Math.random() * 21) + 80); // 80–100%
+      const newChat = {
+        question,
+        answer: data.output || "No response",
+      };
+
+      setCurrentChat(newChat);
+      saveToHistory(newChat); // ✅ store to history page
+      setUploadedFiles([]);
     } catch (err) {
       console.error("AI call failed:", err);
-      setAiResponse("Error contacting local model: " + (err.message || err));
+      setCurrentChat({
+        question,
+        answer: "Error: " + (err.message || err),
+      });
     } finally {
       setIsSending(false);
     }
   };
 
-  // Voice recognition
+  // Voice input
   const handleVoiceInput = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Voice recognition not supported in this browser.");
+      alert("Voice recognition not supported.");
       return;
     }
 
@@ -103,15 +96,9 @@ export default function DashboardPage() {
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.continuous = false;
-    recognition.interimResults = false;
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
-    };
-    recognition.onerror = (e) => {
-      console.error("Speech recognition error", e);
       setIsListening(false);
       recognitionRef.current = null;
     };
@@ -137,69 +124,40 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div
-      className="flex flex-col min-h-screen bg-gray-800 text-white"
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-    >
-      {/* Welcome Banner (hidden once AI responds) */}
-      {!aiResponse && (
-        <div className="flex-grow flex items-center justify-center p-8 text-center">
+    <div className="flex flex-col min-h-screen bg-gray-800 text-white">
+      {/* Centered Welcome if no chat */}
+      {!currentChat && (
+        <div className="flex-grow flex items-center justify-center text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
             Welcome to VeritasAI
           </h1>
         </div>
       )}
 
-      {/* AI response card */}
-      {aiResponse || isSending ? (
-        <div className="flex-grow overflow-auto">
-          <div className="mx-auto w-full max-w-2xl p-4">
-            <div className="bg-gray-700 rounded-xl p-4 shadow-md relative">
-              <h3 className="font-semibold mb-2">AI Response</h3>
-              <pre className="whitespace-pre-wrap text-sm">
-                {isSending ? "Thinking..." : aiResponse}
-              </pre>
-
-              {/* Metric */}
-              {accuracy && !isSending && (
-                <p className="mt-3 text-green-400 font-medium">
-                  ✅ Correctness Score: {accuracy}%
-                </p>
-              )}
-
-              {/* Share Icon */}
-              {!isSending && aiResponse && (
-                <button
-                  className="absolute bottom-3 right-3 text-gray-300 hover:text-indigo-400"
-                  aria-label="Share"
-                  onClick={() => navigator.clipboard.writeText(aiResponse)}
-                >
-                  <Share2 size={18} />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {/* Uploaded Files Preview */}
-      {uploadedFiles.length > 0 && (
-        <div className="mx-auto w-full max-w-2xl p-4">
-          <div className="bg-gray-700 rounded-xl p-4">
-            <h2 className="font-bold mb-2">Uploaded Files:</h2>
-            <ul className="list-disc pl-5">
-              {uploadedFiles.map((file, index) => (
-                <li key={index} className="text-sm">
-                  {file.name}
-                </li>
-              ))}
-            </ul>
+      {/* Current Chat */}
+      {currentChat && (
+        <div className="flex-grow overflow-auto p-6">
+          <div className="bg-gray-700 rounded-xl p-4 shadow-md relative">
+            <p className="text-sm text-indigo-300 mb-2">
+              <b>You:</b> {currentChat.question}
+            </p>
+            <p className="whitespace-pre-wrap text-sm">
+              <b>AI:</b> {currentChat.answer}
+            </p>
+            {!isSending && currentChat.answer && (
+              <button
+                className="absolute bottom-3 right-3 text-gray-300 hover:text-indigo-400"
+                aria-label="Share"
+                onClick={() => navigator.clipboard.writeText(currentChat.answer)}
+              >
+                <Share2 size={18} />
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* Input Section - Fixed at bottom */}
+      {/* Input Section */}
       <div className="sticky bottom-0 bg-gray-800 p-6 flex items-center justify-center border-t border-gray-700">
         <div className="relative flex items-center w-full max-w-2xl bg-gray-800 rounded-full shadow-lg border border-gray-700">
           {/* Plus Button */}
@@ -207,7 +165,7 @@ export default function DashboardPage() {
             <button
               onClick={() => setIsMenuOpen((s) => !s)}
               className="p-3 text-gray-300 hover:text-indigo-400 transition-colors"
-              aria-label="Open uploads"
+              aria-label="Upload menu"
             >
               {isMenuOpen ? <X size={20} /> : <Plus size={20} />}
             </button>
@@ -249,7 +207,7 @@ export default function DashboardPage() {
             placeholder="Ask or search for a true fact..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyPress={(e) => e.key === "Enter" && handleSend()}
             className="flex-grow py-3 px-6 bg-transparent outline-none text-white placeholder-gray-400 rounded-l-full"
           />
 
@@ -261,7 +219,6 @@ export default function DashboardPage() {
                 ? "text-red-500 animate-bounce"
                 : "text-gray-300 hover:text-indigo-400"
             }`}
-            aria-pressed={isListening}
             aria-label="Voice input"
           >
             <Mic size={20} />
