@@ -22,10 +22,10 @@ export default function DashboardPage() {
   const [currentChat, setCurrentChat] = useState(null); // ✅ only latest Q&A
   const recognitionRef = useRef(null);
 
- const saveToHistory = (chat) => {
-  const prev = JSON.parse(localStorage.getItem("history") || "[]");
-  localStorage.setItem("history", JSON.stringify([...prev, chat]));
-};
+  const saveToHistory = (chat) => {
+    const prev = JSON.parse(localStorage.getItem("history") || "[]");
+    localStorage.setItem("history", JSON.stringify([...prev, chat]));
+  };
 
   // File select
   const handleFileSelect = (event) => {
@@ -62,7 +62,12 @@ export default function DashboardPage() {
 
       const newChat = {
         question,
-        answer: data.output || "No response",
+        answer:
+          typeof data.output === "string"
+            ? data.output
+            : data.output?.error
+            ? "Error: " + data.output.error
+            : JSON.stringify(data.output || data),
       };
 
       setCurrentChat(newChat);
@@ -142,13 +147,22 @@ export default function DashboardPage() {
               <b>You:</b> {currentChat.question}
             </p>
             <p className="whitespace-pre-wrap text-sm">
-              <b>AI:</b> {currentChat.answer}
+              <b>AI:</b>{" "}
+              {typeof currentChat.answer === "string"
+                ? currentChat.answer
+                : JSON.stringify(currentChat.answer)}
             </p>
             {!isSending && currentChat.answer && (
               <button
                 className="absolute bottom-3 right-3 text-gray-300 hover:text-indigo-400"
                 aria-label="Share"
-                onClick={() => navigator.clipboard.writeText(currentChat.answer)}
+                onClick={() =>
+                  navigator.clipboard.writeText(
+                    typeof currentChat.answer === "string"
+                      ? currentChat.answer
+                      : JSON.stringify(currentChat.answer)
+                  )
+                }
               >
                 <Share2 size={18} />
               </button>
