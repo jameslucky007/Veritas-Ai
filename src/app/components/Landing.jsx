@@ -75,7 +75,7 @@ const Landing = () => {
             <Link href="/" className="hover:text-white">Home</Link>
             <Link href="#platform" className="hover:text-white">Platform</Link>
             <Link href="#solution" className="hover:text-white">Solution</Link>
-            <Link href="/news" className="hover:text-white">News</Link>
+            <Link href="/" className="hover:text-white">News</Link>
           </nav>
 
           <div className="flex items-center space-x-4">

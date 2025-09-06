@@ -1,8 +1,7 @@
 "use client";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Home, Bookmark, Settings, Menu, LogOut } from "lucide-react";
+import { Home, Bookmark, Settings, Menu, LogOut, User } from "lucide-react";
 import { auth } from "../firebase/firebase"; // firebase is at src/app/firebase/firebase.js
 import { signOut } from "firebase/auth";
 
@@ -12,7 +11,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   const menuItems = [
     { name: "Home", icon: <Home size={20} />, href: "/dashboard" },
     { name: "History", icon: <Bookmark size={20} />, href: "/history" },
-      ];
+    { name: "Profile", icon: <User size={20} />, href: "/details" },
+  ];
 
   const handleLogout = async () => {
     try {
